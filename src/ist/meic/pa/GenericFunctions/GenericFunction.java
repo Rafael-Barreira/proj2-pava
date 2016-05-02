@@ -5,9 +5,15 @@ import java.util.TreeMap;
 
 public class GenericFunction {
 	
-	TreeMap<String, List<GFMethod>> functionMethods; 
+	private static List<GFMethod> methods; 
+	private static String functionName;
 	
 	GenericFunction (String functionName){
-		functionMethods.put(functionName, null);
+		methods = null;
+		this.functionName = functionName;
+	}
+	
+	public void addMethod(String method){
+		
 	}
 }
