@@ -27,7 +27,7 @@
 		</target>
 	
 	 <target name="jar" depends="compile">
-	        <jar destfile="genericFunstions.jar" basedir="${classes}">
+	        <jar destfile="genericFunctions.jar" basedir="${classes}">
 	            <manifest>
 	                <attribute name="Main-Class" value="ist.meic.pa.GenericFunctions"/>
 	            </manifest>
