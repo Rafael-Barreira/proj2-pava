@@ -1,11 +1,12 @@
 package ist.meic.pa.GenericFunctions;
 
 import java.util.List;
-import java.util.TreeMap;
 
 public class GenericFunction {
 	
 	private static List<GFMethod> methods; 
+	private static List<GFMethod> beforeMethods; 
+	private static List<GFMethod> afterMethods; 
 	private static String functionName;
 	
 	GenericFunction (String functionName){
@@ -13,7 +14,21 @@ public class GenericFunction {
 		this.functionName = functionName;
 	}
 	
-	public void addMethod(String method){
+	public void addMethod(GFMethod method){
+		methods.add(method);
 		
+	}
+	
+	public void addBeforeMethod(GFMethod method){
+		beforeMethods.add(method);
+	}
+	
+	public void addAfterMethod(GFMethod method){
+		afterMethods.add(method);
+	}
+	
+	Object call (Object...objects ){
+		
+		return objects;
 	}
 }
