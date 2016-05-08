@@ -130,9 +130,9 @@ public class GenericFunction {
 					}
 				}
 				
-				//get levels of parameters in before methods
-				if(beforeMethods.size() != 0){
-					for (GFMethod m : beforeMethods){
+				//get levels of parameters in after methods
+				if(afterMethods.size() != 0){
+					for (GFMethod m : afterMethods){
 						for(Method dm : m.getClass().getDeclaredMethods()){
 							for(Class<?> param : dm.getParameterTypes()){
 								Integer level = 0;
