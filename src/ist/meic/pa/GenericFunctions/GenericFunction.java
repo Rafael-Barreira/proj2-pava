@@ -90,8 +90,17 @@ public class GenericFunction {
 				}
 			}
 		}
-		
 		return list;
+	}
+	
+	private <T> Object methodCombination(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods, T...args){
+		Object o = null;
+		
+		if(befMethods.size() != 0){
+			
+		}
+		
+		return o;
 	}
 	
 	public <T> Object call (T...args){
@@ -104,13 +113,14 @@ public class GenericFunction {
 		}
 		
 		if(applicableBeforeMethods.size() != 0){
-			System.out.println("2");
+			System.out.println(applicableBeforeMethods.size());
 		}
 		
 		if(applicableAfterMethods.size() != 0){
-			System.out.println("3");
+			System.out.println(applicableAfterMethods.size());
 		}
 		
+		methodCombination(applicableMethods, applicableBeforeMethods, applicableAfterMethods, args);
 		
 		return args[0];
 	}
