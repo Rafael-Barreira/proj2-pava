@@ -39,11 +39,14 @@ public class GenericFunction {
 			for(Method dm : m.getClass().getDeclaredMethods()){
 				if(args.length == dm.getParameterTypes().length){
 					Class<?>[] types =  dm.getParameterTypes();
+					int l = args.length;
 					for(int i = 0; i<args.length; i++){
 						if(args[i].getClass() == types[i]){
-							list.add(m);
+							System.out.println("yo");
+							l --;
 						}
 					}
+					if (l== 0){ list.add(m); System.out.println("ya");}
 				}
 			}
 		}
@@ -57,11 +60,13 @@ public class GenericFunction {
 			for(Method dm : m.getClass().getDeclaredMethods()){
 				if(args.length == dm.getParameterTypes().length){
 					Class<?>[] types =  dm.getParameterTypes();
+					int l = args.length;
 					for(int i = 0; i<args.length; i++){
 						if(args[i].getClass() == types[i]){
-							list.add(m);
+							l --;
 						}
 					}
+					if (l== 0){ list.add(m);}
 				}
 			}
 		}
@@ -75,11 +80,13 @@ public class GenericFunction {
 			for(Method dm : m.getClass().getDeclaredMethods()){
 				if(args.length == dm.getParameterTypes().length){
 					Class<?>[] types =  dm.getParameterTypes();
+					int l = args.length;
 					for(int i = 0; i<args.length; i++){
 						if(args[i].getClass() == types[i]){
-							list.add(m);
+							l --;
 						}
 					}
+					if (l== 0){ list.add(m);}
 				}
 			}
 		}
@@ -117,10 +124,6 @@ public class GenericFunction {
 
 	public static void main(String[] args){
 		GenericFunction gf = new GenericFunction("add");
-		GFMethod gm = new GFMethod() {
-			Object call(String a, String b) {
-			return gf.call(Integer.decode(a), Integer.decode(b));
-		}};
 		
 		gf.addMethod(new GFMethod() {
 			Object call(String a, String b) {
