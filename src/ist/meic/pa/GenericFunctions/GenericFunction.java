@@ -4,6 +4,7 @@ package ist.meic.pa.GenericFunctions;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -93,14 +94,59 @@ public class GenericFunction {
 		return list;
 	}
 	
-	private <T> Object methodCombination(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods, T...args){
-		Object o = null;
+	private void levelCalculation(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods){
 		
+		//get levels of parameters in before methods
 		if(befMethods.size() != 0){
-			
+			for (GFMethod m : befMethods){
+				for(Method dm : m.getClass().getDeclaredMethods()){
+					for(Class<?> param : dm.getParameterTypes()){
+						Integer level = 0;
+						Class<?> obj = param.getSuperclass();
+						while(obj.getSuperclass() != null){
+							obj =  obj.getSuperclass();
+							level ++;
+						}	
+						m.getLevelsMap().put(param, level);
+					}
+				}
+			}
 		}
 		
-		return o;
+		//get levels of parameters in methods
+				if(methods.size() != 0){
+					for (GFMethod m : methods){
+						for(Method dm : m.getClass().getDeclaredMethods()){
+							for(Class<?> param : dm.getParameterTypes()){
+								Integer level = 0;
+								Class<?> obj = param.getSuperclass();
+								while(obj.getSuperclass() != null){
+									obj =  obj.getSuperclass();
+									level ++;
+								}	
+								m.getLevelsMap().put(param, level);
+							}
+						}
+					}
+				}
+				
+				//get levels of parameters in before methods
+				if(beforeMethods.size() != 0){
+					for (GFMethod m : beforeMethods){
+						for(Method dm : m.getClass().getDeclaredMethods()){
+							for(Class<?> param : dm.getParameterTypes()){
+								Integer level = 0;
+								Class<?> obj = param.getSuperclass();
+								while(obj.getSuperclass() != null){
+									obj =  obj.getSuperclass();
+									level ++;
+								}	
+								m.getLevelsMap().put(param, level);
+							}
+						}
+					}
+				}
+		
 	}
 	
 	public <T> Object call (T...args){
@@ -120,15 +166,13 @@ public class GenericFunction {
 			System.out.println(applicableAfterMethods.size());
 		}
 		
-		methodCombination(applicableMethods, applicableBeforeMethods, applicableAfterMethods, args);
+		levelCalculation(applicableMethods, applicableBeforeMethods, applicableAfterMethods);
 		
 		return args[0];
 	}
 	
 	
 	//TODO
-	// get declared methods from every instance of GFMethod in every list
-		// compare arguments 
 		// method combination
 		// profit
 
