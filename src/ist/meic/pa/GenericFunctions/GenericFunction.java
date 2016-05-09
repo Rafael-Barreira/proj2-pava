@@ -43,11 +43,10 @@ public class GenericFunction {
 					int l = args.length;
 					for(int i = 0; i<args.length; i++){
 						if(args[i].getClass() == types[i]){
-							System.out.println("yo");
 							l --;
 						}
 					}
-					if (l== 0){ list.add(m); System.out.println("ya");}
+					if (l== 0){ list.add(m);}
 				}
 			}
 		}
@@ -119,12 +118,13 @@ public class GenericFunction {
 						for(Method dm : m.getClass().getDeclaredMethods()){
 							for(Class<?> param : dm.getParameterTypes()){
 								Integer level = 0;
-								Class<?> obj = param.getSuperclass();
+								Class<?> obj = param.getClass();
 								while(obj.getSuperclass() != null){
 									obj =  obj.getSuperclass();
 									level ++;
 								}	
 								m.getLevelsMap().put(param, level);
+								System.out.println(param.getClass().toGenericString() + " #### " + level);
 							}
 						}
 					}
