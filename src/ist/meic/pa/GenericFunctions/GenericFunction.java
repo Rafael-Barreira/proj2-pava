@@ -2,9 +2,16 @@ package ist.meic.pa.GenericFunctions;
 
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -38,15 +45,24 @@ public class GenericFunction {
 		List<GFMethod> list = new ArrayList<GFMethod>();
 		for(GFMethod m : methods){
 			for(Method dm : m.getClass().getDeclaredMethods()){
-				if(args.length == dm.getParameterTypes().length){
-					Class<?>[] types =  dm.getParameterTypes();
+				if(args.length == dm.getParameters().length){
+					Parameter[] types =  dm.getParameters();
 					int l = args.length;
 					for(int i = 0; i<args.length; i++){
-						if(args[i].getClass() == types[i]){
+						if(args[i].getClass() == types[i].getType()){
 							l --;
+							continue;
+						}
+						Class<?> obj = args[i].getClass();
+						while(obj.getSuperclass() != null){
+							obj = obj.getSuperclass();
+							if(obj.equals(types[i].getType())){
+								l --;
+								break;
+							}
 						}
 					}
-					if (l== 0){ list.add(m);}
+					if (l == 0){ list.add(m);}
 				}
 			}
 		}
@@ -58,15 +74,24 @@ public class GenericFunction {
 		List<GFMethod> list = new ArrayList<GFMethod>();
 		for(GFMethod m : beforeMethods){
 			for(Method dm : m.getClass().getDeclaredMethods()){
-				if(args.length == dm.getParameterTypes().length){
-					Class<?>[] types =  dm.getParameterTypes();
+				if(args.length == dm.getParameters().length){
+					Parameter[] types =  dm.getParameters();
 					int l = args.length;
 					for(int i = 0; i<args.length; i++){
-						if(args[i].getClass() == types[i]){
+						if(args[i].getClass() == types[i].getType()){
 							l --;
+							continue;
+						}
+						Class<?> obj = args[i].getClass();
+						while(obj.getSuperclass() != null){
+							obj = obj.getSuperclass();
+							if(obj.equals(types[i].getType())){
+								l --;
+								break;
+							}
 						}
 					}
-					if (l== 0){ list.add(m);}
+					if (l == 0){ list.add(m);}
 				}
 			}
 		}
@@ -78,18 +103,28 @@ public class GenericFunction {
 		List<GFMethod> list = new ArrayList<GFMethod>();
 		for(GFMethod m : afterMethods){
 			for(Method dm : m.getClass().getDeclaredMethods()){
-				if(args.length == dm.getParameterTypes().length){
-					Class<?>[] types =  dm.getParameterTypes();
+				if(args.length == dm.getParameters().length){
+					Parameter[] types =  dm.getParameters();
 					int l = args.length;
 					for(int i = 0; i<args.length; i++){
-						if(args[i].getClass() == types[i]){
+						if(args[i].getClass() == types[i].getType()){
 							l --;
+							continue;
+						}
+						Class<?> obj = args[i].getClass();
+						while(obj.getSuperclass() != null){
+							obj = obj.getSuperclass();
+							if(obj.equals(types[i].getType())){
+								l --;
+								break;
+							}
 						}
 					}
-					if (l== 0){ list.add(m);}
+					if (l == 0){ list.add(m);}
 				}
 			}
 		}
+		
 		return list;
 	}
 	
@@ -101,12 +136,14 @@ public class GenericFunction {
 				for(Method dm : m.getClass().getDeclaredMethods()){
 					for(Class<?> param : dm.getParameterTypes()){
 						Integer level = 0;
-						Class<?> obj = param.getSuperclass();
+						Class<?> obj = param;
 						while(obj.getSuperclass() != null){
 							obj =  obj.getSuperclass();
 							level ++;
 						}	
-						m.getLevelsMap().put(param, level);
+
+						m.getLevelsMap().add(level);
+						System.out.println(param.toGenericString() + " #### " + level);
 					}
 				}
 			}
@@ -118,13 +155,14 @@ public class GenericFunction {
 						for(Method dm : m.getClass().getDeclaredMethods()){
 							for(Class<?> param : dm.getParameterTypes()){
 								Integer level = 0;
-								Class<?> obj = param.getClass();
+								Class<?> obj = param;
 								while(obj.getSuperclass() != null){
 									obj =  obj.getSuperclass();
 									level ++;
 								}	
-								m.getLevelsMap().put(param, level);
-								System.out.println(param.getClass().toGenericString() + " #### " + level);
+
+								m.getLevelsMap().add(level);
+								System.out.println(param.toGenericString() + " #### " + level);
 							}
 						}
 					}
@@ -136,18 +174,85 @@ public class GenericFunction {
 						for(Method dm : m.getClass().getDeclaredMethods()){
 							for(Class<?> param : dm.getParameterTypes()){
 								Integer level = 0;
-								Class<?> obj = param.getSuperclass();
+								Class<?> obj = param;
 								while(obj.getSuperclass() != null){
 									obj =  obj.getSuperclass();
 									level ++;
 								}	
-								m.getLevelsMap().put(param, level);
+
+								m.getLevelsMap().add(level);
+								System.out.println(param.toGenericString() + " #### " + level);
 							}
 						}
 					}
 				}
-		
 	}
+	
+	private HashMap<GFMethod, Integer> sortHashMapByValues(HashMap<GFMethod, Integer> passedMap){
+		HashMap<GFMethod, Integer> result = new LinkedHashMap<>();
+	    Stream<Map.Entry<GFMethod, Integer>> st = passedMap.entrySet().stream();
+
+	    st.sorted( Map.Entry.comparingByValue() )
+	        .forEachOrdered( e -> result.put(e.getKey(), e.getValue()) );
+
+	    return result;
+	}
+	
+	public void methodCombination(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods){
+		if(befMethods.size() != 0){
+			HashMap<GFMethod, Integer> orderedBefMethods = new HashMap<GFMethod, Integer>();
+			for(GFMethod m : befMethods){
+				int level = 0;
+				for(Integer i : m.getLevelsMap()){
+					level += (int)m.getLevelsMap().get(i);
+				}
+				 orderedBefMethods.put(m, level);
+			}
+			 orderedBefMethods = sortHashMapByValues(orderedBefMethods);
+			 ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedBefMethods.keySet());
+		     for(int i=keys.size()-1; i>=0;i--){
+		       System.out.println("methodcombination "+(int)orderedBefMethods.get(keys.get(i)));
+		       //MethodCall
+		     }
+		}
+		
+		if(methods.size() != 0){
+			HashMap<GFMethod, Integer> orderedBefMethods = new HashMap<GFMethod, Integer>();
+			for(GFMethod m : methods){
+				int level = 0;
+				for(Integer i : m.getLevelsMap()){
+					level += (int)m.getLevelsMap().get(i);
+				}
+				 orderedBefMethods.put(m, level);
+			}
+			 orderedBefMethods = sortHashMapByValues(orderedBefMethods);
+			 ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedBefMethods.keySet());
+		     for(int i=keys.size()-1; i>=0;i--){
+		       System.out.println("methodcombination "+(int)orderedBefMethods.get(keys.get(i)));
+		       //MethodCall
+		     }
+		}
+		
+		if(aftMethods.size() != 0){
+			HashMap<GFMethod, Integer> orderedBefMethods = new HashMap<GFMethod, Integer>();
+			for(GFMethod m : aftMethods){
+				int level = 0;
+				for(Integer i : m.getLevelsMap()){
+					level += (int)m.getLevelsMap().get(i);
+				}
+				 orderedBefMethods.put(m, level);
+			}
+			 orderedBefMethods = sortHashMapByValues(orderedBefMethods);
+			 Iterator itt = orderedBefMethods.entrySet().iterator();
+			 
+			 while (itt.hasNext()) {
+				 Map.Entry pair = (Map.Entry)itt.next();
+				 System.out.println("methodcombination "+(int)pair.getValue());
+				 //METHOD CALL
+			 }
+		}
+	}
+	
 	
 	public <T> Object call (T...args){
 		List<GFMethod> applicableMethods = selectGenericMethods(args);
@@ -167,6 +272,7 @@ public class GenericFunction {
 		}
 		
 		levelCalculation(applicableMethods, applicableBeforeMethods, applicableAfterMethods);
+		methodCombination(applicableMethods, applicableBeforeMethods, applicableAfterMethods);
 		
 		return args[0];
 	}
@@ -179,14 +285,19 @@ public class GenericFunction {
 	public static void main(String[] args){
 		GenericFunction gf = new GenericFunction("add");
 		
-		gf.addMethod(new GFMethod() {
+		gf.addBeforeMethod(new GFMethod() {
+			Object call(String a, Object b) {
+				return gf.call(Integer.decode(a), b);
+			}});
+		gf.addBeforeMethod(new GFMethod() {
 			Object call(String a, String b) {
 				return gf.call(Integer.decode(a), Integer.decode(b));
 			}});
-		gf.addMethod(new GFMethod() {
-			Object call(String a, String b) {
-				return gf.call(Integer.decode(a), Integer.decode(b));
+		
+		gf.addBeforeMethod(new GFMethod() {
+			Object call(Object a, Object b) {
+				return gf.call(a, b);
 			}});
-		gf.call("3", "ADD");
+		gf.call("3", "0");
 	}
 }
