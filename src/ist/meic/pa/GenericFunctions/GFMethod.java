@@ -16,5 +16,9 @@ public class GFMethod {
 	public List<Integer> getLevelsMap(){
 		return lvl;
 	}
+	
+	public TreeMap<Class<?> , Integer> getLevels(){
+		return levels;
+	}
 
 }

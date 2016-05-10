@@ -29,7 +29,7 @@
 	 <target name="jar" depends="compile">
 	        <jar destfile="genericFunctions.jar" basedir="${classes}">
 	            <manifest>
-	                <attribute name="Main-Class" value="ist.meic.pa.GenericFunctions"/>
+	                <attribute name="Main-Class" value="ist.meic.pa.GenericFunctions.GenericFunction"/>
 	            </manifest>
 	        	<zipgroupfileset dir="." includes="javassist.jar" />
 	        </jar>

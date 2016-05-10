@@ -1,6 +1,7 @@
 package ist.meic.pa.GenericFunctions;
 
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -199,6 +200,7 @@ public class GenericFunction {
 	}
 	
 	public void methodCombination(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods){
+		
 		if(befMethods.size() != 0){
 			HashMap<GFMethod, Integer> orderedBefMethods = new HashMap<GFMethod, Integer>();
 			for(GFMethod m : befMethods){
@@ -211,9 +213,22 @@ public class GenericFunction {
 			 orderedBefMethods = sortHashMapByValues(orderedBefMethods);
 			 ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedBefMethods.keySet());
 		     for(int i=keys.size()-1; i>=0;i--){
-		       System.out.println("methodcombination "+(int)orderedBefMethods.get(keys.get(i)));
-		       //MethodCall
-		     }
+			System.out.println("methodcombination "+(int)orderedBefMethods.get(keys.get(i)));
+			
+			//TO-TEST (Verificar q argumentos esxistem nos metodos chamados.
+			GFMethod gf_method = keys.get(i);
+
+			try {
+				gf_method.getClass().getMethods()[0].invoke(gf_method.getClass(), gf_method.getLevelsMap().toArray());
+			} catch (IllegalAccessException iae) {
+			    System.out.println(iae.toString());
+			} catch (IllegalArgumentException iare) {
+			    System.out.println(iare.toString());
+			} catch (InvocationTargetException ite) {
+			    System.out.println(ite.toString());
+			}
+			//
+		  }
 		}
 		
 		if(methods.size() != 0){
