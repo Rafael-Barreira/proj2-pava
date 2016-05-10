@@ -199,7 +199,7 @@ public class GenericFunction {
 	    return result;
 	}
 	
-	public void methodCombination(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods){
+	public <T> void methodCombination(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods, T...args){
 		
 		if(befMethods.size() != 0){
 			HashMap<GFMethod, Integer> orderedBefMethods = new HashMap<GFMethod, Integer>();
@@ -287,7 +287,7 @@ public class GenericFunction {
 		}
 		
 		levelCalculation(applicableMethods, applicableBeforeMethods, applicableAfterMethods);
-		methodCombination(applicableMethods, applicableBeforeMethods, applicableAfterMethods);
+		methodCombination(applicableMethods, applicableBeforeMethods, applicableAfterMethods, args);
 		
 		return args[0];
 	}
