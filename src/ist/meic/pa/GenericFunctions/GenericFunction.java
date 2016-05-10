@@ -219,7 +219,7 @@ public class GenericFunction {
 			GFMethod gf_method = keys.get(i);
 
 			try {
-				gf_method.getClass().getMethods()[0].invoke(gf_method.getClass(), gf_method.getLevelsMap().toArray());
+				gf_method.getClass().getMethods()[0].invoke(gf_method.getClass(), args);
 			} catch (IllegalAccessException iae) {
 			    System.out.println(iae.toString());
 			} catch (IllegalArgumentException iare) {
