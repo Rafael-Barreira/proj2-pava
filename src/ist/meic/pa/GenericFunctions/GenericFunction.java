@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -208,6 +209,7 @@ public class GenericFunction {
 				for(Integer i : m.getLevelsMap()){
 					level += (int)m.getLevelsMap().get(i);
 				}
+				System.out.println(level);
 				 orderedBefMethods.put(m, level);
 			}
 			 orderedBefMethods = sortHashMapByValues(orderedBefMethods);
@@ -217,9 +219,20 @@ public class GenericFunction {
 			
 			//TO-TEST (Verificar q argumentos esxistem nos metodos chamados.
 			GFMethod gf_method = keys.get(i);
-
+/*for(T arg : args){
+					System.out.println("ARGS: "+arg.getClass().toGenericString());
+				}
+for(Method mm : gf_method.getClass().getDeclaredMethods()){
+					for(Class<?> pp : mm.getParameterTypes()){
+						System.out.println("PARAMS: "+pp.toGenericString());
+					}
+}*/
 			try {
-				gf_method.getClass().getMethods()[0].invoke(gf_method.getClass(), args);
+				
+				gf_method.getClass().getDeclaredMethods()[0].invoke(gf_method, args);
+					
+				
+				
 			} catch (IllegalAccessException iae) {
 			    System.out.println(iae.toString());
 			} catch (IllegalArgumentException iare) {
@@ -232,33 +245,33 @@ public class GenericFunction {
 		}
 		
 		if(methods.size() != 0){
-			HashMap<GFMethod, Integer> orderedBefMethods = new HashMap<GFMethod, Integer>();
+			HashMap<GFMethod, Integer> orderedMethods = new HashMap<GFMethod, Integer>();
 			for(GFMethod m : methods){
 				int level = 0;
 				for(Integer i : m.getLevelsMap()){
 					level += (int)m.getLevelsMap().get(i);
 				}
-				 orderedBefMethods.put(m, level);
+				 orderedMethods.put(m, level);
 			}
-			 orderedBefMethods = sortHashMapByValues(orderedBefMethods);
-			 ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedBefMethods.keySet());
+			 orderedMethods = sortHashMapByValues(orderedMethods);
+			 ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedMethods.keySet());
 		     for(int i=keys.size()-1; i>=0;i--){
-		       System.out.println("methodcombination "+(int)orderedBefMethods.get(keys.get(i)));
+		       System.out.println("methodcombination "+(int)orderedMethods.get(keys.get(i)));
 		       //MethodCall
 		     }
 		}
 		
 		if(aftMethods.size() != 0){
-			HashMap<GFMethod, Integer> orderedBefMethods = new HashMap<GFMethod, Integer>();
+			HashMap<GFMethod, Integer> orderedAftMethods = new HashMap<GFMethod, Integer>();
 			for(GFMethod m : aftMethods){
 				int level = 0;
 				for(Integer i : m.getLevelsMap()){
 					level += (int)m.getLevelsMap().get(i);
 				}
-				 orderedBefMethods.put(m, level);
+				orderedAftMethods.put(m, level);
 			}
-			 orderedBefMethods = sortHashMapByValues(orderedBefMethods);
-			 Iterator itt = orderedBefMethods.entrySet().iterator();
+			orderedAftMethods = sortHashMapByValues(orderedAftMethods);
+			 Iterator itt = orderedAftMethods.entrySet().iterator();
 			 
 			 while (itt.hasNext()) {
 				 Map.Entry pair = (Map.Entry)itt.next();
@@ -275,15 +288,15 @@ public class GenericFunction {
 		List<GFMethod> applicableAfterMethods = selectAfterMethods(args);
 		
 		if(applicableMethods.size() != 0){
-			System.out.println(applicableMethods.size());
+			System.out.println("Method size: "+applicableMethods.size());
 		}
 		
 		if(applicableBeforeMethods.size() != 0){
-			System.out.println(applicableBeforeMethods.size());
+			System.out.println("BEF SIZE: "+applicableBeforeMethods.size());
 		}
 		
 		if(applicableAfterMethods.size() != 0){
-			System.out.println(applicableAfterMethods.size());
+			System.out.println("AFTER SIZE: " +applicableAfterMethods.size());
 		}
 		
 		levelCalculation(applicableMethods, applicableBeforeMethods, applicableAfterMethods);
@@ -298,21 +311,51 @@ public class GenericFunction {
 		// profit
 
 	public static void main(String[] args){
-		GenericFunction gf = new GenericFunction("add");
-		
-		gf.addBeforeMethod(new GFMethod() {
+		final GenericFunction add = new GenericFunction("add");
+
+		add.addBeforeMethod(new GFMethod() {
+			Object call(Integer a, Integer b) {
+				return a + b;
+			}});
+
+		add.addBeforeMethod(new GFMethod() {
+			Object call(Object[] a, Object[] b) {
+				Object[] r = new Object[a.length];
+				for (int i = 0; i < a.length; i++) {
+					r[i] = add.call(a[i], b[i]);
+				}
+				return r;
+			}});
+
+		add.addBeforeMethod(new GFMethod() {
+			Object call(Object[] a, Object b) {
+				Object[] ba = new Object[a.length];
+				Arrays.fill(ba, b);
+				return add.call(a, ba);
+			}});
+
+		add.addBeforeMethod(new GFMethod() {
+			Object call(Object a, Object b[]) {
+				Object[] aa = new Object[b.length];
+				Arrays.fill(aa, a);
+				return add.call(aa, b);
+			}});
+
+		add.addBeforeMethod(new GFMethod() {
 			Object call(String a, Object b) {
-				return gf.call(Integer.decode(a), b);
+				return add.call(Integer.decode(a), b);
 			}});
-		gf.addBeforeMethod(new GFMethod() {
-			Object call(String a, String b) {
-				return gf.call(Integer.decode(a), Integer.decode(b));
+
+		add.addBeforeMethod(new GFMethod() {
+			Object call(Object a, String b) {
+				return add.call(a, Integer.decode(b));
 			}});
-		
-		gf.addBeforeMethod(new GFMethod() {
-			Object call(Object a, Object b) {
-				return gf.call(a, b);
+
+		add.addBeforeMethod(new GFMethod() {
+			Object call(Object[] a, List b) {
+				return add.call(a, b.toArray());
 			}});
-		gf.call("3", "0");
+		add.call(new Object[] { 1, 2 }, 3);
+
 	}
 }
