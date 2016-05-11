@@ -370,8 +370,8 @@ public class GenericFunction {
 		final GenericFunction add = new GenericFunction("add");
 
 		add.addBeforeMethod(new GFMethod() {
-			Object call(Integer a, Integer b) {
-				return a + b;
+			void call(Number a, Number b) {
+				System.err.printf("The number " + a + " and " + b);
 			}});
 
 		add.addMethod(new GFMethod() {
@@ -383,7 +383,7 @@ public class GenericFunction {
 				return r;
 			}});
 
-		add.addAfterMethod(new GFMethod() {
+		add.addMethod(new GFMethod() {
 			Object call(Object[] a, Object b) {
 				Object[] ba = new Object[a.length];
 				Arrays.fill(ba, b);
