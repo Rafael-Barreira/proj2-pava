@@ -228,34 +228,35 @@ public class GenericFunction {
 				System.out.println(level);
 				 orderedBefMethods.put(m, level);
 			}
-			 orderedBefMethods = sortHashMapByValues(orderedBefMethods);
-			 ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedBefMethods.keySet());
-		     for(int i=keys.size()-1; i>=0;i--){
-			System.out.println("methodcombination "+(int)orderedBefMethods.get(keys.get(i)));
+			orderedBefMethods = sortHashMapByValues(orderedBefMethods);
+			ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedBefMethods.keySet());
+		    for(int i=keys.size()-1; i>=0;i--){
+		    	System.out.println("methodcombination before "+(int)orderedBefMethods.get(keys.get(i)));
 			
-			//TO-TEST (Verificar q argumentos esxistem nos metodos chamados.
-			GFMethod gf_method = keys.get(i);
+				//TO-TEST (Verificar q argumentos esxistem nos metodos chamados.
+				GFMethod gf_method = keys.get(i);
 
-			try {
-				for(Method mm : gf_method.getClass().getDeclaredMethods()){
-					Object[] paramsPrimary = new Object[args.length];
-					mm.setAccessible(true);
-					for(int p = 0; p < args.length; p++) {
-						 paramsPrimary[p] = mm.getParameters()[p];
-						 System.out.println( mm.getParameters()[p].getType() + " %%% " + arguments[p].toString());
-						 System.out.println(mm.toString());
+				try {
+					for(Method mm : gf_method.getClass().getDeclaredMethods()){
+						Object[] paramsPrimary = new Object[args.length];
+						mm.setAccessible(true);
+						for(int p = 0; p < args.length; p++) {
+							 paramsPrimary[p] = mm.getParameters()[p];
+							 System.out.println( mm.getParameters()[p].getType() + " %%% " + arguments[p].toString());
+							 System.out.println(mm.toString());
+						}
+						
+						mm.invoke(gf_method,  arguments);
 					}
-					mm.invoke(gf_method,  arguments);
+					System.out.println("Invoking!");
+				} catch (IllegalAccessException iae) {
+				    System.out.println(iae.toString());
+				} catch (IllegalArgumentException iare) {
+				    System.out.println(iare.toString());
+				} catch (InvocationTargetException ite) {
+				    System.out.println(ite.toString());
 				}
-				
-			} catch (IllegalAccessException iae) {
-			    System.out.println(iae.toString());
-			} catch (IllegalArgumentException iare) {
-			    System.out.println(iare.toString());
-			} catch (InvocationTargetException ite) {
-			    System.out.println(ite.toString());
-			}
-		  }
+		    }
 		}
 		
 		if(methods.size() != 0){
@@ -294,13 +295,44 @@ public class GenericFunction {
 				orderedAftMethods.put(m, level);
 			}
 			orderedAftMethods = sortHashMapByValues(orderedAftMethods);
-			 Iterator itt = orderedAftMethods.entrySet().iterator();
+			ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedAftMethods.keySet());
+			
+			for(int i = 0; i<keys.size() ;i++){
+		    	System.out.println("Methodcombination After "+(int)orderedAftMethods.get(keys.get(i)));
+			
+				//TO-TEST (Verificar q argumentos esxistem nos metodos chamados.
+				GFMethod gf_method = keys.get(i);
+
+				try {
+					for(Method mm : gf_method.getClass().getDeclaredMethods()){
+						Object[] paramsPrimary = new Object[args.length];
+						mm.setAccessible(true);
+						for(int p = 0; p < args.length; p++) {
+							 paramsPrimary[p] = mm.getParameters()[p];
+							 System.out.println( mm.getParameters()[p].getType() + " %%% " + arguments[p].toString());
+							 System.out.println(mm.toString());
+						}
+						
+						mm.invoke(gf_method,  arguments);
+					}
+					System.out.println("Invoking!");
+				} catch (IllegalAccessException iae) {
+				    System.out.println(iae.toString());
+				} catch (IllegalArgumentException iare) {
+				    System.out.println(iare.toString());
+				} catch (InvocationTargetException ite) {
+				    System.out.println(ite.toString());
+				}
+		    }
+			/*
+			Iterator itt = orderedAftMethods.entrySet().iterator();
 			 
 			 while (itt.hasNext()) {
 				 Map.Entry pair = (Map.Entry)itt.next();
-				 System.out.println("methodcombination "+(int)pair.getValue());
+				 System.out.println("methodcombination after "+(int)pair.getValue());
+				// itt.invoke(gf_method,  arguments);
 				 //METHOD CALL
-			 }
+			 }*/
 		}
 	}
 	
@@ -337,7 +369,7 @@ public class GenericFunction {
 	public static void main(String[] args){
 		final GenericFunction add = new GenericFunction("add");
 
-		add.addMethod(new GFMethod() {
+		add.addBeforeMethod(new GFMethod() {
 			Object call(Integer a, Integer b) {
 				return a + b;
 			}});
@@ -351,7 +383,7 @@ public class GenericFunction {
 				return r;
 			}});
 
-		add.addMethod(new GFMethod() {
+		add.addAfterMethod(new GFMethod() {
 			Object call(Object[] a, Object b) {
 				Object[] ba = new Object[a.length];
 				Arrays.fill(ba, b);
