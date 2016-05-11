@@ -26,9 +26,11 @@ public class GenericFunction {
 	private static List<GFMethod> beforeMethods = new ArrayList<GFMethod>(); 
 	private static List<GFMethod> afterMethods = new ArrayList<GFMethod>(); 
 	private static String functionName;
+	private static Object result;
 	
 	GenericFunction (String functionName){
 		this.functionName = functionName;
+		result = new Object();
 	}
 	
 	public void addMethod(GFMethod method){
@@ -221,7 +223,7 @@ public class GenericFunction {
 			for(GFMethod m : befMethods){
 				int level = 0;
 				for(Integer i : m.getLevelsMap()){
-					level += (int)m.getLevelsMap().get(i);
+					level += (int)i;
 				}
 				System.out.println(level);
 				 orderedBefMethods.put(m, level);
@@ -261,14 +263,25 @@ public class GenericFunction {
 			for(GFMethod m : methods){
 				int level = 0;
 				for(Integer i : m.getLevelsMap()){
-					level += (int)m.getLevelsMap().get(i);
+					level += (int)i;
 				}
 				 orderedMethods.put(m, level);
 			}
 			 orderedMethods = sortHashMapByValues(orderedMethods);
 			 ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedMethods.keySet());
 		     System.out.println("methodcombination "+(int)orderedMethods.get(keys.get(keys.size()-1)));
-		     //methodCall
+		     GFMethod gf_method = keys.get(keys.size()-1);
+		     for(Method mm : gf_method.getClass().getDeclaredMethods()){
+		    	 mm.setAccessible(true);
+		    	 try {
+					result = mm.invoke(gf_method, arguments);
+				} catch (IllegalAccessException | IllegalArgumentException
+						| InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		     }
+		     
 		}
 		
 		if(aftMethods.size() != 0){
@@ -276,7 +289,7 @@ public class GenericFunction {
 			for(GFMethod m : aftMethods){
 				int level = 0;
 				for(Integer i : m.getLevelsMap()){
-					level += (int)m.getLevelsMap().get(i);
+					level += (int)i;
 				}
 				orderedAftMethods.put(m, level);
 			}
@@ -313,7 +326,7 @@ public class GenericFunction {
 		levelCalculation(applicableMethods, applicableBeforeMethods, applicableAfterMethods);//INFO: Calcula o nivel de especifidade de todos os metodos que sao aplicaveis
 		methodCombination(applicableMethods, applicableBeforeMethods, applicableAfterMethods, args);//INFO: faz a method combination e invoca os metodos
 		
-		return args[0];
+		return result;
 	}
 	
 	
@@ -324,12 +337,12 @@ public class GenericFunction {
 	public static void main(String[] args){
 		final GenericFunction add = new GenericFunction("add");
 
-		add.addBeforeMethod(new GFMethod() {
+		add.addMethod(new GFMethod() {
 			Object call(Integer a, Integer b) {
 				return a + b;
 			}});
 
-		add.addBeforeMethod(new GFMethod() {
+		add.addMethod(new GFMethod() {
 			Object call(Object[] a, Object[] b) {
 				Object[] r = new Object[a.length];
 				for (int i = 0; i < a.length; i++) {
@@ -338,31 +351,31 @@ public class GenericFunction {
 				return r;
 			}});
 
-		add.addBeforeMethod(new GFMethod() {
+		add.addMethod(new GFMethod() {
 			Object call(Object[] a, Object b) {
 				Object[] ba = new Object[a.length];
 				Arrays.fill(ba, b);
 				return add.call(a, ba);
 			}});
 
-		add.addBeforeMethod(new GFMethod() {
+		add.addMethod(new GFMethod() {
 			Object call(Object a, Object b[]) {
 				Object[] aa = new Object[b.length];
 				Arrays.fill(aa, a);
 				return add.call(aa, b);
 			}});
 
-		add.addBeforeMethod(new GFMethod() {
+		add.addMethod(new GFMethod() {
 			Object call(String a, Object b) {
 				return add.call(Integer.decode(a), b);
 			}});
 
-		add.addBeforeMethod(new GFMethod() {
+		add.addMethod(new GFMethod() {
 			Object call(Object a, String b) {
 				return add.call(a, Integer.decode(b));
 			}});
 
-		add.addBeforeMethod(new GFMethod() {
+		add.addMethod(new GFMethod() {
 			Object call(Object[] a, List b) {
 				return add.call(a, b.toArray());
 			}});
