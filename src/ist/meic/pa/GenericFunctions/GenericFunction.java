@@ -79,6 +79,7 @@ public class GenericFunction {
 		//INFO: faz o mesmo so que para os befmethods
 		for(GFMethod m : beforeMethods){
 			for(Method dm : m.getClass().getDeclaredMethods()){
+				System.out.println(dm.toString());
 				if(args.length == dm.getParameters().length){
 					Parameter[] types =  dm.getParameters();
 					int l = args.length;
@@ -210,6 +211,10 @@ public class GenericFunction {
 	
 	public <T> void methodCombination(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods, T...args){
 		//INFO: realiza a method combination... ve a magem que esta no chat de Pava
+		Object[] arguments = new Object[args.length];
+		for(int i = 0; i< args.length; i++){
+			arguments[i] = args[i];
+		}
 		
 		if(befMethods.size() != 0){
 			HashMap<GFMethod, Integer> orderedBefMethods = new HashMap<GFMethod, Integer>();
@@ -228,26 +233,18 @@ public class GenericFunction {
 			
 			//TO-TEST (Verificar q argumentos esxistem nos metodos chamados.
 			GFMethod gf_method = keys.get(i);
-/*for(T arg : args){
-					System.out.println("ARGS: "+arg.getClass().toGenericString());
-				}
-for(Method mm : gf_method.getClass().getDeclaredMethods()){
-					for(Class<?> pp : mm.getParameterTypes()){
-						System.out.println("PARAMS: "+pp.toGenericString());
-					}
-}*/
+
 			try {
 				for(Method mm : gf_method.getClass().getDeclaredMethods()){
 					Object[] paramsPrimary = new Object[args.length];
+					mm.setAccessible(true);
 					for(int p = 0; p < args.length; p++) {
 						 paramsPrimary[p] = mm.getParameters()[p];
-						 System.out.println( mm.getTypeParameters()[p]);
+						 System.out.println( mm.getParameters()[p].getType() + " %%% " + arguments[p].toString());
+						 System.out.println(mm.toString());
 					}
-					mm.invoke(gf_method,  paramsPrimary);
+					mm.invoke(gf_method,  arguments);
 				}
-				//gf_method.getClass().getDeclaredMethods()[0].invoke(gf_method, args);
-					
-				
 				
 			} catch (IllegalAccessException iae) {
 			    System.out.println(iae.toString());
