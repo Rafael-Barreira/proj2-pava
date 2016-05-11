@@ -45,16 +45,18 @@ public class GenericFunction {
 	
 	private <T> List<GFMethod> selectGenericMethods(T...args){
 		List<GFMethod> list = new ArrayList<GFMethod>();
-		for(GFMethod m : methods){
-			for(Method dm : m.getClass().getDeclaredMethods()){
-				if(args.length == dm.getParameters().length){
-					Parameter[] types =  dm.getParameters();
-					int l = args.length;
+		
+		for(GFMethod m : methods){//INFO: corre todos os GFmethod presentes na classe
+			for(Method dm : m.getClass().getDeclaredMethods()){//INFO: corre todos os metodos que estao declarados no GFmethod
+				if(args.length == dm.getParameters().length){//INFO: Ve se os esses metodos declaros tem o mesmo numero de argumentos que a chamada a função call
+					Parameter[] types =  dm.getParameters();//INFO: vai buscar os parametros
+					int l = args.length;//INFO: variavel qe serve so para garantir que todos os argumentos sao testados
 					for(int i = 0; i<args.length; i++){
 						if(args[i].getClass() == types[i].getType()){
 							l --;
 							continue;
-						}
+						}//INFO: ve se o argumento e o parametro do metodo sao do mesmo tipo se nao vai ver se é da mesma super class
+						//Porque se tiveres um string um metodo que receba um object pode receber um string
 						Class<?> obj = args[i].getClass();
 						while(obj.getSuperclass() != null){
 							obj = obj.getSuperclass();
@@ -64,7 +66,7 @@ public class GenericFunction {
 							}
 						}
 					}
-					if (l == 0){ list.add(m);}
+					if (l == 0){ list.add(m);}//INFO: se todos os argumentos foram testados com sucesso entao esse metodo é aplicavel
 				}
 			}
 		}
@@ -74,6 +76,7 @@ public class GenericFunction {
 	
 	private <T> List<GFMethod> selectBeforeMethods(T...args){
 		List<GFMethod> list = new ArrayList<GFMethod>();
+		//INFO: faz o mesmo so que para os befmethods
 		for(GFMethod m : beforeMethods){
 			for(Method dm : m.getClass().getDeclaredMethods()){
 				if(args.length == dm.getParameters().length){
@@ -103,6 +106,7 @@ public class GenericFunction {
 	
 	private <T> List<GFMethod> selectAfterMethods(T...args){
 		List<GFMethod> list = new ArrayList<GFMethod>();
+		//INFO: faz o mesmo so que para os after methods
 		for(GFMethod m : afterMethods){
 			for(Method dm : m.getClass().getDeclaredMethods()){
 				if(args.length == dm.getParameters().length){
@@ -131,6 +135,9 @@ public class GenericFunction {
 	}
 	
 	private void levelCalculation(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods){
+		//INFO: ve o nivel de cada metodo aplicavel
+		//por exemplo um metodo que receba duas strings é mais especifico que um metodo que receba uma string e um object
+		//logo o metodo que recebe duas strings tem um nivel mais alto
 		
 		//get levels of parameters in before methods
 		if(befMethods.size() != 0){
@@ -192,6 +199,7 @@ public class GenericFunction {
 	
 	private HashMap<GFMethod, Integer> sortHashMapByValues(HashMap<GFMethod, Integer> passedMap){
 		HashMap<GFMethod, Integer> result = new LinkedHashMap<>();
+		//INFO: função que ordena um hash... e so para ordenar a hash dos metodos por niveis
 	    Stream<Map.Entry<GFMethod, Integer>> st = passedMap.entrySet().stream();
 
 	    st.sorted( Map.Entry.comparingByValue() )
@@ -201,6 +209,7 @@ public class GenericFunction {
 	}
 	
 	public <T> void methodCombination(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods, T...args){
+		//INFO: realiza a method combination... ve a magem que esta no chat de Pava
 		
 		if(befMethods.size() != 0){
 			HashMap<GFMethod, Integer> orderedBefMethods = new HashMap<GFMethod, Integer>();
@@ -228,8 +237,15 @@ for(Method mm : gf_method.getClass().getDeclaredMethods()){
 					}
 }*/
 			try {
-				
-				gf_method.getClass().getDeclaredMethods()[0].invoke(gf_method, args);
+				for(Method mm : gf_method.getClass().getDeclaredMethods()){
+					Object[] paramsPrimary = new Object[args.length];
+					for(int p = 0; p < args.length; p++) {
+						 paramsPrimary[p] = mm.getParameters()[p];
+						 System.out.println( mm.getTypeParameters()[p]);
+					}
+					mm.invoke(gf_method,  paramsPrimary);
+				}
+				//gf_method.getClass().getDeclaredMethods()[0].invoke(gf_method, args);
 					
 				
 				
@@ -240,7 +256,6 @@ for(Method mm : gf_method.getClass().getDeclaredMethods()){
 			} catch (InvocationTargetException ite) {
 			    System.out.println(ite.toString());
 			}
-			//
 		  }
 		}
 		
@@ -255,10 +270,8 @@ for(Method mm : gf_method.getClass().getDeclaredMethods()){
 			}
 			 orderedMethods = sortHashMapByValues(orderedMethods);
 			 ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedMethods.keySet());
-		     for(int i=keys.size()-1; i>=0;i--){
-		       System.out.println("methodcombination "+(int)orderedMethods.get(keys.get(i)));
-		       //MethodCall
-		     }
+		     System.out.println("methodcombination "+(int)orderedMethods.get(keys.get(keys.size()-1)));
+		     //methodCall
 		}
 		
 		if(aftMethods.size() != 0){
@@ -283,9 +296,10 @@ for(Method mm : gf_method.getClass().getDeclaredMethods()){
 	
 	
 	public <T> Object call (T...args){
-		List<GFMethod> applicableMethods = selectGenericMethods(args);
-		List<GFMethod> applicableBeforeMethods = selectBeforeMethods(args);
-		List<GFMethod> applicableAfterMethods = selectAfterMethods(args);
+		//INFO: ESTA É A FUNÇÃO PRINCIPAL
+		List<GFMethod> applicableMethods = selectGenericMethods(args); //INFO: Selecciona os metodos que aplicaveis a chamada da função call.
+		List<GFMethod> applicableBeforeMethods = selectBeforeMethods(args);//INFO: Selecciona os before metodos que aplicaveis a chamada da função call.
+		List<GFMethod> applicableAfterMethods = selectAfterMethods(args);//INFO: Selecciona os after metodos que aplicaveis a chamada da função call.
 		
 		if(applicableMethods.size() != 0){
 			System.out.println("Method size: "+applicableMethods.size());
@@ -299,8 +313,8 @@ for(Method mm : gf_method.getClass().getDeclaredMethods()){
 			System.out.println("AFTER SIZE: " +applicableAfterMethods.size());
 		}
 		
-		levelCalculation(applicableMethods, applicableBeforeMethods, applicableAfterMethods);
-		methodCombination(applicableMethods, applicableBeforeMethods, applicableAfterMethods, args);
+		levelCalculation(applicableMethods, applicableBeforeMethods, applicableAfterMethods);//INFO: Calcula o nivel de especifidade de todos os metodos que sao aplicaveis
+		methodCombination(applicableMethods, applicableBeforeMethods, applicableAfterMethods, args);//INFO: faz a method combination e invoca os metodos
 		
 		return args[0];
 	}
