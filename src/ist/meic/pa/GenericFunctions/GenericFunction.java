@@ -397,6 +397,11 @@ public class GenericFunction {
 				return add.call(aa, b);
 			}});
 
+		add.addAfterMethod(new GFMethod() {
+			void call(Number a, Number b) {
+				System.err.printf("FINISHING LIKE A BOSS" + a + " & " + b);
+			}});
+
 		add.addMethod(new GFMethod() {
 			Object call(String a, Object b) {
 				return add.call(Integer.decode(a), b);
