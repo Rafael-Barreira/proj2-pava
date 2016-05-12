@@ -182,7 +182,9 @@ public class GenericFunction {
 									obj =  obj.getSuperclass();
 									level ++;
 								}	
-/*IS ASSIGNABLE */ 
+/*IS ASSIGNABLE GG WELL PLAYED
+ * 
+ * */ 
 								m.getLevelsMap().add(level);
 								//System.out.println(param.toGenericString() + " #### " + level);
 							}
