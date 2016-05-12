@@ -20,6 +20,18 @@ import javassist.CtMethod;
 import javassist.ClassPool;
 import javassist.NotFoundException;
 
+class Shape {}
+
+class Line extends Shape {}
+
+class Circle extends Shape {}
+
+class Device {}
+
+class Screen extends Device {}
+
+class Printer extends Device {}
+
 public class GenericFunction {
 	
 	private List<GFMethod> methods = new ArrayList<GFMethod>(); 
@@ -147,17 +159,32 @@ public class GenericFunction {
 		return list;
 	}
 	
-	private void levelCalculation(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods){
+	private <T> void levelCalculation(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods){
 		//INFO: ve o nivel de cada metodo aplicavel
 		//por exemplo um metodo que receba duas strings e mais especifico que um metodo que receba uma string e um object
 		//logo o metodo que recebe duas strings tem um nivel mais alto
-		
+		Integer level = 0;
 		//get levels of parameters in before methods
 		if(befMethods.size() != 0){
-			for (GFMethod m : befMethods){
+			Method dm = befMethods.get(0).getClass().getDeclaredMethods()[0];
+			for (int i = 0; i < befMethods.size(); i++){
+				Method tm = befMethods.get(i).getClass().getDeclaredMethods()[0];
+				GFMethod m = befMethods.get(i);
+				for(Class<?> param_dm : dm.getParameterTypes()){
+				    for (Class<?> param_tm : tm.getParameterTypes()) {
+						level = 0;
+						if (param_dm.getClass().isAssignableFrom(param_tm)){
+							level ++;
+						}
+						//System.out.println(param.toGenericString() + " #### " + level);
+						 m.getLevelsMap().add(level);
+					}
+				}
+			}
+			/*for (GFMethod m : befMethods){
 				for(Method dm : m.getClass().getDeclaredMethods()){
 					for(Class<?> param : dm.getParameterTypes()){
-						Integer level = 0;
+						level = 0;
 						Class<?> obj = param;
 						while(obj.getSuperclass() != null){
 							obj =  obj.getSuperclass();
@@ -168,48 +195,44 @@ public class GenericFunction {
 						//System.out.println(param.toGenericString() + " #### " + level);
 					}
 				}
+			}*/
+		}
+		//get levels of parameters in methods
+		if(methods.size() != 0){
+			Method dm = methods.get(0).getClass().getDeclaredMethods()[0];
+			for (int i = 0; i < methods.size(); i++){
+				Method tm = methods.get(i).getClass().getDeclaredMethods()[0];
+				GFMethod m = methods.get(i);
+				for(Class<?> param_dm : dm.getParameterTypes()){
+				    for (Class<?> param_tm : tm.getParameterTypes()) {
+						level = 0;
+						if (param_dm.getClass().isAssignableFrom(param_tm)){
+							level ++;
+						}
+						//System.out.println(param.toGenericString() + " #### " + level);
+						 m.getLevelsMap().add(level);
+					}
+				}
 			}
 		}
-		
-		//get levels of parameters in methods
-				if(methods.size() != 0){
-					for (GFMethod m : methods){
-						for(Method dm : m.getClass().getDeclaredMethods()){
-							for(Class<?> param : dm.getParameterTypes()){
-								Integer level = 0;
-								Class<?> obj = param;
-								while(obj.getSuperclass() != null){
-									obj =  obj.getSuperclass();
-									level ++;
-								}	
-/*IS ASSIGNABLE GG WELL PLAYED
- * 
- * */ 
-								m.getLevelsMap().add(level);
-								//System.out.println(param.toGenericString() + " #### " + level);
-							}
+		//get levels of parameters in after methods
+		if(afterMethods.size() != 0){
+			Method dm = afterMethods.get(0).getClass().getDeclaredMethods()[0];
+			for (int i = 0; i < afterMethods.size(); i++){
+				Method tm = afterMethods.get(i).getClass().getDeclaredMethods()[0];
+				GFMethod m = afterMethods.get(i);
+				for(Class<?> param_dm : dm.getParameterTypes()){
+				    for (Class<?> param_tm : tm.getParameterTypes()) {
+						level = 0;
+						if (param_dm.getClass().isAssignableFrom(param_tm)){
+							level ++;
 						}
+						//System.out.println(param.toGenericString() + " #### " + level);
+						 m.getLevelsMap().add(level);
 					}
 				}
-				
-				//get levels of parameters in after methods
-				if(afterMethods.size() != 0){
-					for (GFMethod m : afterMethods){
-						for(Method dm : m.getClass().getDeclaredMethods()){
-							for(Class<?> param : dm.getParameterTypes()){
-								Integer level = 0;
-								Class<?> obj = param;
-								while(obj.getSuperclass() != null){
-									obj =  obj.getSuperclass();
-									level ++;
-								}	
-
-								m.getLevelsMap().add(level);
-								//System.out.println(param.toGenericString() + " #### " + level);
-							}
-						}
-					}
-				}
+			}
+		}
 	}
 	
 	private HashMap<GFMethod, Integer> sortHashMapByValues(HashMap<GFMethod, Integer> passedMap){
@@ -326,7 +349,7 @@ public class GenericFunction {
 						for(int p = 0; p < args.length; p++) {
 							 paramsPrimary[p] = mm.getParameters()[p];
 						// System.out.println( mm.getParameters()[p].getType() + " %%% " + arguments[p].toString());
-							// System.out.println(mm.toString());
+						// System.out.println(mm.toString());
 						}
 						
 						mm.invoke(gf_method,  arguments);
@@ -386,62 +409,70 @@ public class GenericFunction {
 
 	public static void main(String args[]) {
 
-		final GenericFunction add = new GenericFunction("add");
-
-		add.addMethod(new GFMethod() {
-			Object call(Integer a, Integer b) {
-				return a + b;
+		final GenericFunction draw = new GenericFunction("draw");
+		
+		draw.addMethod(new GFMethod() {
+			Object call(Device d, Shape s) {
+				System.err.println("draw what where?");
+				return "";
+			}});
+		
+		draw.addMethod(new GFMethod() {
+			Object call(Device d, Line l) {
+				System.err.println("draw a line where?");
+				return "";
+			}});
+		
+		draw.addMethod(new GFMethod() {
+			Object call(Device d, Circle c) {
+				System.err.println("draw a circle where?");
+				return "";
+			}});
+		
+		draw.addMethod(new GFMethod() {
+			Object call(Screen d, Shape s) {
+				System.err.println("draw what on screen?");
+				return "";
+			}});
+		
+		draw.addMethod(new GFMethod() {
+			Object call(Screen d, Line l) {
+				System.err.println("drawing a line on screen!");
+				return "";
+			}});
+		
+		draw.addMethod(new GFMethod() {
+			Object call(Screen d, Circle c) {
+				System.err.println("drawing a circle on screen!");
+				return "";
+			}});
+		
+		draw.addMethod(new GFMethod() {
+			Object call(Printer d, Shape s) {
+				System.err.println("draw what on printer?");
+				return "";
+			}});
+		
+		draw.addMethod(new GFMethod() {
+			Object call(Printer d, Line l) {
+				System.err.println("drawing a line on printer!");
+				return "";
+			}});
+		
+		draw.addMethod(new GFMethod() {
+			Object call(Printer d, Circle c) {
+				System.err.println("drawing a circle on printer!");
+				return "";
 			}});
 
-		add.addMethod(new GFMethod() {
-			Object call(Object[] a, Object[] b) {
-				Object[] r = new Object[a.length];
-				for (int i = 0; i < a.length; i++) {
-					r[i] = add.call(a[i], b[i]);
-				}
-				return r;
-			}});
-
-		add.addMethod(new GFMethod() {
-			Object call(Object[] a, Object b) {
-				Object[] ba = new Object[a.length];
-				Arrays.fill(ba, b);
-				return add.call(a, ba);
-			}});
-
-		add.addMethod(new GFMethod() {
-			Object call(Object a, Object b[]) {
-				Object[] aa = new Object[b.length];
-				Arrays.fill(aa, a);
-				return add.call(aa, b);
-			}});
-
-		add.addAfterMethod(new GFMethod() {
-			void call(Number a, Number b) {
-				System.err.printf("FINISHING LIKE A BOSS" + a + " & " + b);
-			}});
-
-		add.addMethod(new GFMethod() {
-			Object call(String a, Object b) {
-				return add.call(Integer.decode(a), b);
-			}});
-
-		add.addMethod(new GFMethod() {
-			Object call(Object a, String b) {
-				return add.call(a, Integer.decode(b));
-			}});
-
-		add.addMethod(new GFMethod() {
-			Object call(Object[] a, List b) {
-				return add.call(a, b.toArray());
-			}});
-
-		println(add.call(new Object[] { 1, 2 }, 3));
-		println(add.call(1, new Object[][] { { 1, 2 }, { 3, 4 } }));
-		println(add.call("12", "34"));
-		println(add.call(new Object[] { "123", "4" }, 5));
-		println(add.call(new Object[] { 1, 2, 3 }, Arrays.asList(4, 5, 6)));
-
+		Device[] devices = new Device[] { new Screen(), new Printer() };
+		Shape[] shapes = new Shape[] { new Line(), new Circle() };
+		
+		for (Device device : devices) {
+			for (Shape shape : shapes) {
+				draw.call(device, shape);
+			}
+		}
 	}
 
 	public static void println(Object obj) {
