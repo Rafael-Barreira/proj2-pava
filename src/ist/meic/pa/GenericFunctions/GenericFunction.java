@@ -26,11 +26,9 @@ public class GenericFunction {
 	private static List<GFMethod> beforeMethods = new ArrayList<GFMethod>(); 
 	private static List<GFMethod> afterMethods = new ArrayList<GFMethod>(); 
 	private static String functionName;
-	private static Object result;
 	
 	GenericFunction (String functionName){
 		this.functionName = functionName;
-		result = new Object();
 	}
 	
 	public void addMethod(GFMethod method){
@@ -54,18 +52,24 @@ public class GenericFunction {
 					Parameter[] types =  dm.getParameters();//INFO: vai buscar os parametros
 					int l = args.length;//INFO: variavel qe serve so para garantir que todos os argumentos sao testados
 					for(int i = 0; i<args.length; i++){
-						if(args[i].getClass() == types[i].getType()){
+						Class<?> paramTypes = types[i].getType();
+						if(args[i].getClass().equals(paramTypes)){
 							l --;
 							continue;
 						}//INFO: ve se o argumento e o parametro do metodo sao do mesmo tipo se nao vai ver se e da mesma super class
 						//Porque se tiveres um string um metodo que receba um object pode receber um string
 						Class<?> obj = args[i].getClass();
-						while(obj.getSuperclass() != null){
+					/*	while(obj.getSuperclass() != null){
 							obj = obj.getSuperclass();
 							if(obj.equals(types[i].getType())){
 								l --;
 								break;
 							}
+						}*/
+					//	System.out.println(obj.getName());
+					//	System.out.println(paramTypes.getName());
+						if(paramTypes.isAssignableFrom(obj)){
+							l--;
 						}
 					}
 					if (l == 0){ list.add(m);}//INFO: se todos os argumentos foram testados com sucesso entao esse metodo e aplicavel
@@ -81,7 +85,7 @@ public class GenericFunction {
 		//INFO: faz o mesmo so que para os befmethods
 		for(GFMethod m : beforeMethods){
 			for(Method dm : m.getClass().getDeclaredMethods()){
-				System.out.println(dm.toString());
+				//System.out.println(dm.toString());
 				if(args.length == dm.getParameters().length){
 					Parameter[] types =  dm.getParameters();
 					int l = args.length;
@@ -91,12 +95,18 @@ public class GenericFunction {
 							continue;
 						}
 						Class<?> obj = args[i].getClass();
-						while(obj.getSuperclass() != null){
+						/*while(obj.getSuperclass() != null){
 							obj = obj.getSuperclass();
 							if(obj.equals(types[i].getType())){
 								l --;
 								break;
 							}
+						}*/
+						
+						Class<?> paramTypes = types[i].getType();
+						boolean isAssignedFrom = paramTypes.isAssignableFrom(obj);
+						if(isAssignedFrom){
+							l--;
 						}
 					}
 					if (l == 0){ list.add(m);}
@@ -155,7 +165,7 @@ public class GenericFunction {
 						}	
 
 						m.getLevelsMap().add(level);
-						System.out.println(param.toGenericString() + " #### " + level);
+						//System.out.println(param.toGenericString() + " #### " + level);
 					}
 				}
 			}
@@ -172,9 +182,9 @@ public class GenericFunction {
 									obj =  obj.getSuperclass();
 									level ++;
 								}	
-
+/*IS ASSIGNABLE */ 
 								m.getLevelsMap().add(level);
-								System.out.println(param.toGenericString() + " #### " + level);
+								//System.out.println(param.toGenericString() + " #### " + level);
 							}
 						}
 					}
@@ -193,7 +203,7 @@ public class GenericFunction {
 								}	
 
 								m.getLevelsMap().add(level);
-								System.out.println(param.toGenericString() + " #### " + level);
+								//System.out.println(param.toGenericString() + " #### " + level);
 							}
 						}
 					}
@@ -211,7 +221,7 @@ public class GenericFunction {
 	    return result;
 	}
 	
-	public <T> void methodCombination(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods, T...args){
+	public <T> Object methodCombination( Object result, List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods, T...args){
 		//INFO: realiza a method combination... ve a magem que esta no chat de Pava
 		Object[] arguments = new Object[args.length];
 		for(int i = 0; i< args.length; i++){
@@ -225,13 +235,13 @@ public class GenericFunction {
 				for(Integer i : m.getLevelsMap()){
 					level += (int)i;
 				}
-				System.out.println(level);
+				//System.out.println(level);
 				 orderedBefMethods.put(m, level);
 			}
 			orderedBefMethods = sortHashMapByValues(orderedBefMethods);
 			ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedBefMethods.keySet());
 		    for(int i=keys.size()-1; i>=0;i--){
-		    	System.out.println("methodcombination before "+(int)orderedBefMethods.get(keys.get(i)));
+		    //	System.out.println("methodcombination before "+(int)orderedBefMethods.get(keys.get(i)));
 			
 				//TO-TEST (Verificar q argumentos esxistem nos metodos chamados.
 				GFMethod gf_method = keys.get(i);
@@ -242,13 +252,13 @@ public class GenericFunction {
 						mm.setAccessible(true);
 						for(int p = 0; p < args.length; p++) {
 							 paramsPrimary[p] = mm.getParameters()[p];
-							 System.out.println( mm.getParameters()[p].getType() + " %%% " + arguments[p].toString());
-							 System.out.println(mm.toString());
+							// System.out.println( mm.getParameters()[p].getType() + " %%% " + arguments[p].toString());
+							// System.out.println(mm.toString());
 						}
 						
 						mm.invoke(gf_method,  arguments);
 					}
-					System.out.println("Invoking!");
+				//	System.out.println("Invoking!");
 				} catch (IllegalAccessException iae) {
 				    System.out.println(iae.toString());
 				} catch (IllegalArgumentException iare) {
@@ -270,11 +280,15 @@ public class GenericFunction {
 			}
 			 orderedMethods = sortHashMapByValues(orderedMethods);
 			 ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedMethods.keySet());
-		     System.out.println("methodcombination "+(int)orderedMethods.get(keys.get(keys.size()-1)));
+		   //  System.out.println("methodcombination "+(int)orderedMethods.get(keys.get(keys.size()-1)));
 		     GFMethod gf_method = keys.get(keys.size()-1);
 		     for(Method mm : gf_method.getClass().getDeclaredMethods()){
 		    	 mm.setAccessible(true);
 		    	 try {
+		    		 for(Parameter p : mm.getParameters()){
+		    			 System.out.println("Parametet Type: " + p.getType());
+		    		 }
+		    		 
 					result = mm.invoke(gf_method, arguments);
 				} catch (IllegalAccessException | IllegalArgumentException
 						| InvocationTargetException e) {
@@ -298,7 +312,7 @@ public class GenericFunction {
 			ArrayList<GFMethod> keys = new ArrayList<GFMethod>(orderedAftMethods.keySet());
 			
 			for(int i = 0; i<keys.size() ;i++){
-		    	System.out.println("Methodcombination After "+(int)orderedAftMethods.get(keys.get(i)));
+		   // 	System.out.println("Methodcombination After "+(int)orderedAftMethods.get(keys.get(i)));
 			
 				//TO-TEST (Verificar q argumentos esxistem nos metodos chamados.
 				GFMethod gf_method = keys.get(i);
@@ -309,13 +323,13 @@ public class GenericFunction {
 						mm.setAccessible(true);
 						for(int p = 0; p < args.length; p++) {
 							 paramsPrimary[p] = mm.getParameters()[p];
-							 System.out.println( mm.getParameters()[p].getType() + " %%% " + arguments[p].toString());
-							 System.out.println(mm.toString());
+						// System.out.println( mm.getParameters()[p].getType() + " %%% " + arguments[p].toString());
+							// System.out.println(mm.toString());
 						}
 						
 						mm.invoke(gf_method,  arguments);
 					}
-					System.out.println("Invoking!");
+					//System.out.println("Invoking!");
 				} catch (IllegalAccessException iae) {
 				    System.out.println(iae.toString());
 				} catch (IllegalArgumentException iare) {
@@ -334,6 +348,7 @@ public class GenericFunction {
 				 //METHOD CALL
 			 }*/
 		}
+		return result;
 	}
 	
 	
@@ -342,22 +357,23 @@ public class GenericFunction {
 		List<GFMethod> applicableMethods = selectGenericMethods(args); //INFO: Selecciona os metodos que aplicaveis a chamada da funcao call.
 		List<GFMethod> applicableBeforeMethods = selectBeforeMethods(args);//INFO: Selecciona os before metodos que aplicaveis a chamada da funcao call.
 		List<GFMethod> applicableAfterMethods = selectAfterMethods(args);//INFO: Selecciona os after metodos que aplicaveis a chamada da funcao call.
+		Object result = new Object();
 		
 		if(applicableMethods.size() != 0){
-			System.out.println("Method size: "+applicableMethods.size());
+		//	System.out.println("Method size: "+applicableMethods.size());
 		}
 		
 		if(applicableBeforeMethods.size() != 0){
-			System.out.println("BEF SIZE: "+applicableBeforeMethods.size());
+		//	System.out.println("BEF SIZE: "+applicableBeforeMethods.size());
 		}
 		
 		if(applicableAfterMethods.size() != 0){
-			System.out.println("AFTER SIZE: " +applicableAfterMethods.size());
+		//	System.out.println("AFTER SIZE: " +applicableAfterMethods.size());
 		}
 		
 		levelCalculation(applicableMethods, applicableBeforeMethods, applicableAfterMethods);//INFO: Calcula o nivel de especifidade de todos os metodos que sao aplicaveis
-		methodCombination(applicableMethods, applicableBeforeMethods, applicableAfterMethods, args);//INFO: faz a method combination e invoca os metodos
-		
+		result = methodCombination(result, applicableMethods, applicableBeforeMethods, applicableAfterMethods, args);//INFO: faz a method combination e invoca os metodos
+		//System.out.println(result);
 		return result;
 	}
 	
@@ -366,12 +382,13 @@ public class GenericFunction {
 		// method combination
 		// profit
 
-	public static void main(String[] args){
+	public static void main(String args[]) {
+
 		final GenericFunction add = new GenericFunction("add");
 
-		add.addBeforeMethod(new GFMethod() {
-			void call(Number a, Number b) {
-				System.err.printf("The number " + a + " and " + b);
+		add.addMethod(new GFMethod() {
+			Object call(Integer a, Integer b) {
+				return a + b;
 			}});
 
 		add.addMethod(new GFMethod() {
@@ -411,7 +428,21 @@ public class GenericFunction {
 			Object call(Object[] a, List b) {
 				return add.call(a, b.toArray());
 			}});
-		add.call(new Object[] { 1, 2 }, 3);
 
+		println(add.call(new Object[] { 1, 2 }, 3));
+		println(add.call(1, new Object[][] { { 1, 2 }, { 3, 4 } }));
+		println(add.call("12", "34"));
+		println(add.call(new Object[] { "123", "4" }, 5));
+		println(add.call(new Object[] { 1, 2, 3 }, Arrays.asList(4, 5, 6)));
+
+	}
+
+	public static void println(Object obj) {
+
+		if (obj instanceof Object[]) {
+			System.err.println(Arrays.deepToString((Object[])obj));
+		} else {
+			System.err.println(obj);
+		}
 	}
 }
