@@ -50,14 +50,14 @@ public class GenericFunction {
 		
 		for(GFMethod m : methods){//INFO: corre todos os GFmethod presentes na classe
 			for(Method dm : m.getClass().getDeclaredMethods()){//INFO: corre todos os metodos que estao declarados no GFmethod
-				if(args.length == dm.getParameters().length){//INFO: Ve se os esses metodos declaros tem o mesmo numero de argumentos que a chamada a função call
+				if(args.length == dm.getParameters().length){//INFO: Ve se os esses metodos declaros tem o mesmo numero de argumentos que a chamada a funcao call
 					Parameter[] types =  dm.getParameters();//INFO: vai buscar os parametros
 					int l = args.length;//INFO: variavel qe serve so para garantir que todos os argumentos sao testados
 					for(int i = 0; i<args.length; i++){
 						if(args[i].getClass() == types[i].getType()){
 							l --;
 							continue;
-						}//INFO: ve se o argumento e o parametro do metodo sao do mesmo tipo se nao vai ver se é da mesma super class
+						}//INFO: ve se o argumento e o parametro do metodo sao do mesmo tipo se nao vai ver se e da mesma super class
 						//Porque se tiveres um string um metodo que receba um object pode receber um string
 						Class<?> obj = args[i].getClass();
 						while(obj.getSuperclass() != null){
@@ -68,7 +68,7 @@ public class GenericFunction {
 							}
 						}
 					}
-					if (l == 0){ list.add(m);}//INFO: se todos os argumentos foram testados com sucesso entao esse metodo é aplicavel
+					if (l == 0){ list.add(m);}//INFO: se todos os argumentos foram testados com sucesso entao esse metodo e aplicavel
 				}
 			}
 		}
@@ -139,7 +139,7 @@ public class GenericFunction {
 	
 	private void levelCalculation(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods){
 		//INFO: ve o nivel de cada metodo aplicavel
-		//por exemplo um metodo que receba duas strings é mais especifico que um metodo que receba uma string e um object
+		//por exemplo um metodo que receba duas strings e mais especifico que um metodo que receba uma string e um object
 		//logo o metodo que recebe duas strings tem um nivel mais alto
 		
 		//get levels of parameters in before methods
@@ -202,7 +202,7 @@ public class GenericFunction {
 	
 	private HashMap<GFMethod, Integer> sortHashMapByValues(HashMap<GFMethod, Integer> passedMap){
 		HashMap<GFMethod, Integer> result = new LinkedHashMap<>();
-		//INFO: função que ordena um hash... e so para ordenar a hash dos metodos por niveis
+		//INFO: funcao que ordena um hash... e so para ordenar a hash dos metodos por niveis
 	    Stream<Map.Entry<GFMethod, Integer>> st = passedMap.entrySet().stream();
 
 	    st.sorted( Map.Entry.comparingByValue() )
@@ -338,10 +338,10 @@ public class GenericFunction {
 	
 	
 	public <T> Object call (T...args){
-		//INFO: ESTA É A FUNÇÃO PRINCIPAL
-		List<GFMethod> applicableMethods = selectGenericMethods(args); //INFO: Selecciona os metodos que aplicaveis a chamada da função call.
-		List<GFMethod> applicableBeforeMethods = selectBeforeMethods(args);//INFO: Selecciona os before metodos que aplicaveis a chamada da função call.
-		List<GFMethod> applicableAfterMethods = selectAfterMethods(args);//INFO: Selecciona os after metodos que aplicaveis a chamada da função call.
+		//INFO: ESTA E A FUNCAOO PRINCIPAL
+		List<GFMethod> applicableMethods = selectGenericMethods(args); //INFO: Selecciona os metodos que aplicaveis a chamada da funcao call.
+		List<GFMethod> applicableBeforeMethods = selectBeforeMethods(args);//INFO: Selecciona os before metodos que aplicaveis a chamada da funcao call.
+		List<GFMethod> applicableAfterMethods = selectAfterMethods(args);//INFO: Selecciona os after metodos que aplicaveis a chamada da funcao call.
 		
 		if(applicableMethods.size() != 0){
 			System.out.println("Method size: "+applicableMethods.size());
