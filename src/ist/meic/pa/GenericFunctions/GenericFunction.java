@@ -159,7 +159,7 @@ public class GenericFunction {
 		return list;
 	}
 	
-	private <T> void levelCalculation(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods){
+	private void levelCalculation(List<GFMethod> methods, List<GFMethod> befMethods, List<GFMethod> aftMethods){
 		//INFO: ve o nivel de cada metodo aplicavel
 		//por exemplo um metodo que receba duas strings e mais especifico que um metodo que receba uma string e um object
 		//logo o metodo que recebe duas strings tem um nivel mais alto
@@ -206,13 +206,13 @@ public class GenericFunction {
 				for(Class<?> param_dm : dm.getParameterTypes()){
 				    for (Class<?> param_tm : tm.getParameterTypes()) {
 						level = 0;
-						if (param_dm.getClass().isAssignableFrom(param_tm)){
+						if (param_tm.getClass().isAssignableFrom(param_dm)){
 							level ++;
 						}
-						//System.out.println(param.toGenericString() + " #### " + level);
-						 m.getLevelsMap().add(level);
+						System.out.println(param_tm.toGenericString() + " #### " + level);
 					}
 				}
+				m.getLevelsMap().add(level);
 			}
 		}
 		//get levels of parameters in after methods
@@ -227,8 +227,7 @@ public class GenericFunction {
 						if (param_dm.getClass().isAssignableFrom(param_tm)){
 							level ++;
 						}
-						//System.out.println(param.toGenericString() + " #### " + level);
-						 m.getLevelsMap().add(level);
+						m.getLevelsMap().add(level);
 					}
 				}
 			}
