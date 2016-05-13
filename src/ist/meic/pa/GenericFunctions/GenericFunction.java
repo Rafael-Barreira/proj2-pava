@@ -20,17 +20,6 @@ import javassist.CtMethod;
 import javassist.ClassPool;
 import javassist.NotFoundException;
 
-class Shape {}
-
-class Line extends Shape {}
-
-class Circle extends Shape {}
-
-class Device {}
-
-class Screen extends Device {}
-
-class Printer extends Device {}
 
 public class GenericFunction {
 	
@@ -209,7 +198,6 @@ public class GenericFunction {
 						if (param_tm.getClass().isAssignableFrom(param_dm)){
 							level ++;
 						}
-						System.out.println(param_tm.toGenericString() + " #### " + level);
 					}
 				}
 				m.getLevelsMap().add(level);
@@ -259,7 +247,6 @@ public class GenericFunction {
 				for(Integer i : m.getLevelsMap()){
 					level += (int)i;
 				}
-				//System.out.println(level);
 				 orderedBefMethods.put(m, level);
 			}
 			orderedBefMethods = sortHashMapByValues(orderedBefMethods);
@@ -308,11 +295,7 @@ public class GenericFunction {
 		     GFMethod gf_method = keys.get(keys.size()-1);
 		     for(Method mm : gf_method.getClass().getDeclaredMethods()){
 		    	 mm.setAccessible(true);
-		    	 try {
-		    		 for(Parameter p : mm.getParameters()){
-		    			 System.out.println("Parametet Type: " + p.getType());
-		    		 }
-		    		 
+		    	 try {    		 
 					result = mm.invoke(gf_method, arguments);
 				} catch (IllegalAccessException | IllegalArgumentException
 						| InvocationTargetException e) {
@@ -383,18 +366,6 @@ public class GenericFunction {
 		List<GFMethod> applicableAfterMethods = selectAfterMethods(args);//INFO: Selecciona os after metodos que aplicaveis a chamada da funcao call.
 		Object result = new Object();
 		
-		if(applicableMethods.size() != 0){
-		//	System.out.println("Method size: "+applicableMethods.size());
-		}
-		
-		if(applicableBeforeMethods.size() != 0){
-		//	System.out.println("BEF SIZE: "+applicableBeforeMethods.size());
-		}
-		
-		if(applicableAfterMethods.size() != 0){
-		//	System.out.println("AFTER SIZE: " +applicableAfterMethods.size());
-		}
-		
 		levelCalculation(applicableMethods, applicableBeforeMethods, applicableAfterMethods);//INFO: Calcula o nivel de especifidade de todos os metodos que sao aplicaveis
 		result = methodCombination(result, applicableMethods, applicableBeforeMethods, applicableAfterMethods, args);//INFO: faz a method combination e invoca os metodos
 		//System.out.println(result);
@@ -408,78 +379,6 @@ public class GenericFunction {
 
 	public static void main(String args[]) {
 
-		final GenericFunction draw = new GenericFunction("draw");
-		
-		draw.addMethod(new GFMethod() {
-			Object call(Device d, Shape s) {
-				System.err.println("draw what where?");
-				return "";
-			}});
-		
-		draw.addMethod(new GFMethod() {
-			Object call(Device d, Line l) {
-				System.err.println("draw a line where?");
-				return "";
-			}});
-		
-		draw.addMethod(new GFMethod() {
-			Object call(Device d, Circle c) {
-				System.err.println("draw a circle where?");
-				return "";
-			}});
-		
-		draw.addMethod(new GFMethod() {
-			Object call(Screen d, Shape s) {
-				System.err.println("draw what on screen?");
-				return "";
-			}});
-		
-		draw.addMethod(new GFMethod() {
-			Object call(Screen d, Line l) {
-				System.err.println("drawing a line on screen!");
-				return "";
-			}});
-		
-		draw.addMethod(new GFMethod() {
-			Object call(Screen d, Circle c) {
-				System.err.println("drawing a circle on screen!");
-				return "";
-			}});
-		
-		draw.addMethod(new GFMethod() {
-			Object call(Printer d, Shape s) {
-				System.err.println("draw what on printer?");
-				return "";
-			}});
-		
-		draw.addMethod(new GFMethod() {
-			Object call(Printer d, Line l) {
-				System.err.println("drawing a line on printer!");
-				return "";
-			}});
-		
-		draw.addMethod(new GFMethod() {
-			Object call(Printer d, Circle c) {
-				System.err.println("drawing a circle on printer!");
-				return "";
-			}});
-
-		Device[] devices = new Device[] { new Screen(), new Printer() };
-		Shape[] shapes = new Shape[] { new Line(), new Circle() };
-		
-		for (Device device : devices) {
-			for (Shape shape : shapes) {
-				draw.call(device, shape);
-			}
-		}
 	}
 
-	public static void println(Object obj) {
-
-		if (obj instanceof Object[]) {
-			System.err.println(Arrays.deepToString((Object[])obj));
-		} else {
-			System.err.println(obj);
-		}
-	}
 }
